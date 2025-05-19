@@ -1,0 +1,56 @@
+# Velero Helm Chart Values
+# Refer to the official Velero Helm chart for all available options:
+# https://github.com/vmware-tanzu/helm-charts/blob/main/charts/velero/values.yaml
+
+configuration:
+  provider: aws
+  backupStorageLocation:
+    name: default
+    bucket: ${bucket_name}
+    config:
+      region: ${region}
+  volumeSnapshotLocation:
+    name: default
+    config:
+      region: ${region}
+
+credentials:
+  useSecret: false
+
+# Assuming the EKS Blueprints Addon handles IRSA setup for Velero.
+# If not, you would need to configure serviceAccount annotations here.
+# serviceAccount:
+#   server:
+#     create: true # Addon likely handles this
+#     name: velero # Addon likely handles this
+#     annotations:
+#       eks.amazonaws.com/role-arn: "YOUR_VELERO_IRSA_ROLE_ARN" # Replace if not handled by addon
+
+# initContainers are often required to install AWS plugin for Velero.
+# The EKS Blueprints addon for Velero should ideally manage this.
+# If not, you might need to configure it like below.
+# Check the addon's documentation for how it handles Velero plugins.
+initContainers:
+  - name: velero-plugin-for-aws
+    image: velero/velero-plugin-for-aws:v1.7.0
+    volumeMounts:
+      - mountPath: /target
+        name: plugins
+
+# By default, Velero installs its CRDs. The EKS Blueprints Addon should handle this.
+crds:
+  create: true
+
+# For Disaster Recovery, backup schedules should typically only run in the primary region.
+# You can manage schedules outside of this initial Helm deployment (e.g., via GitOps or Velero CLI post-setup),
+# or if the chart supports it, conditionally disable them here based on a variable like `var.is_primary`.
+# Example (syntax depends on chart):
+# schedules:
+#   daily-backup:
+#     disabled: ${!is_primary_region} # You'd need to pass `is_primary_region` to this template
+#     schedule: "@daily"
+#     template:
+#       includedNamespaces:
+#       - "*"
+#       ttl: "720h"
+# For now, we assume schedules are managed externally or only active in primary by default.

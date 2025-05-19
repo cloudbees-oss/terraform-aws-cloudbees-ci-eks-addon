@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" modified="2024-03-19T12:00:00.000Z" agent="Mozilla/5.0" version="21.7.5" etag="your-etag" type="device">
+  <diagram id="dr-k8s" name="DR Kubernetes">
+    <mxGraphModel dx="1422" dy="762" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        
+        <!-- EKS Clusters -->
+        <mxCell id="eks-alpha" value="EKS Cluster (Primary)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="320" height="400" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="eks-beta" value="EKS Cluster (Secondary)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
+          <mxGeometry x="440" y="40" width="320" height="400" as="geometry"/>
+        </mxCell>
+        
+        <!-- Node Groups -->
+        <mxCell id="nodes-alpha" value="Managed Node Group" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;" vertex="1" parent="eks-alpha">
+          <mxGeometry x="20" y="40" width="78" height="78" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="nodes-beta" value="Managed Node Group" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;" vertex="1" parent="eks-beta">
+          <mxGeometry x="20" y="40" width="78" height="78" as="geometry"/>
+        </mxCell>
+        
+        <!-- EKS Addons -->
+        <mxCell id="addons-alpha" value="EKS Addons&#xa;- CoreDNS&#xa;- VPC CNI&#xa;- kube-proxy&#xa;- External DNS&#xa;- AWS Load Balancer Controller&#xa;- EFS CSI Driver" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="eks-alpha">
+          <mxGeometry x="20" y="120" width="280" height="120" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="addons-beta" value="EKS Addons&#xa;- CoreDNS&#xa;- VPC CNI&#xa;- kube-proxy&#xa;- EFS CSI Driver" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="eks-beta">
+          <mxGeometry x="20" y="120" width="280" height="100" as="geometry"/>
+        </mxCell>
+        
+        <!-- CloudBees CI -->
+        <mxCell id="cbci-alpha" value="CloudBees CI&#xa;- Controller&#xa;- Operations Center&#xa;- Agents" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;" vertex="1" parent="eks-alpha">
+          <mxGeometry x="20" y="260" width="280" height="80" as="geometry"/>
+        </mxCell>
+        
+        <!-- Storage -->
+        <mxCell id="storage-alpha" value="Storage&#xa;- EFS Storage Class&#xa;- Persistent Volumes" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.efs;" vertex="1" parent="eks-alpha">
+          <mxGeometry x="20" y="360" width="78" height="78" as="geometry"/>
+        </mxCell>
+        
+        <mxCell id="storage-beta" value="Storage&#xa;- EFS Storage Class&#xa;- Persistent Volumes" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.efs;" vertex="1" parent="eks-beta">
+          <mxGeometry x="20" y="240" width="78" height="78" as="geometry"/>
+        </mxCell>
+        
+        <!-- Connections -->
+        <mxCell id="storage-replication" value="Storage Replication" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="storage-alpha" target="storage-beta">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="390" y="400" as="sourcePoint"/>
+            <mxPoint x="440" y="350" as="targetPoint"/>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile> 

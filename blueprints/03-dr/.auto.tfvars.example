@@ -1,0 +1,17 @@
+# AWS Regions
+region_alpha = "us-west-2"  # Alpha region
+region_beta  = "us-east-1"  # Beta region
+
+# Domain configuration
+hosted_zone = "example.com"
+
+# CloudBees CI configuration
+trial_license = true  # Set to false if using a production license
+
+# Tags
+tags = {
+  Environment = "dr"
+  Terraform   = "true"
+}
+
+suffix = "dr" 

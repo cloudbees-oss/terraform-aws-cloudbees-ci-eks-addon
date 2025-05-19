@@ -1,0 +1,6 @@
+provider: aws
+policy: sync
+registry: txt
+txtOwnerId: cbci-dr
+domainFilters:
+  - ${domain_name} 
