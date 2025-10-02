@@ -95,8 +95,14 @@ CloudBees CI uses a couple of Kubernetes secrets for different purposes dependin
 | hosted_zone | Amazon Route 53 hosted zone. CloudBees CI applications are configured to use subdomains in this hosted zone. | `string` | n/a | yes |
 | trial_license | CloudBees CI trial license details for evaluation. | `map(string)` | n/a | yes |
 | aws_region | AWS region to deploy resources to. It requires a minimum of three availability zones. | `string` | `"us-west-2"` | no |
+| cbci_casc_path_controller | Path within the Git repository that contains the CloudBees CI controllers. | `string` | `"blueprints/02-at-scale/cbci/mc"` | no |
+| cbci_casc_path_shared_library | Path within the Git repository that contains the CloudBees CI shared library. | `string` | `"blueprints/02-at-scale/cbci/shared-lib"` | no |
 | ci | Running in a CI service versus running locally. False when running locally, true when running in a CI service. | `bool` | `false` | no |
-| dh_reg_secret_auth | Docker Hub registry server authentication details for cbci-sec-reg secret. | `map(string)` | <pre>{<br>  "email": "foo.bar@acme.com",<br>  "password": "changeme1234",<br>  "username": "foo"<br>}</pre> | no |
+| dh_reg_secret_auth | Docker Hub registry server authentication details for cbci-sec-reg secret. | `map(string)` | <pre>{<br/>  "email": "email@example.com",<br/>  "password": "changeme1234",<br/>  "username": "foo"<br/>}</pre> | no |
+| oc_casc_scm_branch | Branch of the Git repository that contains the CloudBees CI CasC bundle configuration for the operations center. | `string` | `"develop"` | no |
+| oc_casc_scm_bundle_path | Path within the Git repository that contains the CloudBees CI CasC bundle configuration for the operations center. | `string` | `"blueprints/02-at-scale/cbci/casc/oc"` | no |
+| oc_casc_scm_polling_interval | Polling interval for the Git repository that contains the CloudBees CI CasC bundle configuration for the operations center. | `string` | `"PT20M"` | no |
+| oc_casc_scm_repo_url | URL of the Git repository that contains the CloudBees CI CasC bundle configuration for the operations center. | `string` | `"https://github.com/cloudbees/terraform-aws-cloudbees-ci-eks-addon.git"` | no |
 | suffix | Unique suffix to assign to all resources. When adding the suffix, changes are required in CloudBees CI for the validation phase. | `string` | `""` | no |
 | tags | Tags to apply to resources. | `map(string)` | `{}` | no |
 
@@ -359,7 +365,7 @@ Steps:
 
 For backup and restore operations, you can use the [preconfigured CloudBees CI Cluster Operations job](#cloudbees-ci-backup) to automatically perform a daily backup, which can be used for Amazon EFS and Amazon EBS storage.
 
-[Velero](#create-a-velero-backup-schedule) is an alternative for services only for controllers using Amazon EBS. Velero commands and configuration in this blueprint follow [Using Velero back up and restore Kubernetes cluster resources](https://docs.cloudbees.com/docs/cloudbees-ci/latest/backup-restore/velero-dr). There is no alternative for services using Amazon EFS storage. Although [AWS Backup](https://aws.amazon.com/backup/) includes the Amazon EFS drive as a protected resource, there is not currently a best practice to dynamically restore Amazon EFS PVCs. For more information, refer to [Issue 39](https://github.com/cloudbees/terraform-aws-cloudbees-ci-eks-addon/issues/39).
+[Velero](#velero) is an alternative for services only for controllers using Amazon EBS. Velero commands and configuration in this blueprint follow [Using Velero back up and restore Kubernetes cluster resources](https://docs.cloudbees.com/docs/cloudbees-ci/latest/backup-restore/velero-dr). There is no alternative for services using Amazon EFS storage. Although [AWS Backup](https://aws.amazon.com/backup/) includes the Amazon EFS drive as a protected resource, there is not currently a best practice to dynamically restore Amazon EFS PVCs. For more information, refer to [Issue 39](https://github.com/cloudbees/terraform-aws-cloudbees-ci-eks-addon/issues/39).
 
 > [!NOTE]
 > - An installation that has been completely converted to CasC may not need traditional backups; a restore operation could consist simply of running a CasC bootstrap script. This is only an option if you have translated every significant system setting and job configuration to CasC. Even then, it may be desirable to perform a filesystem-level restore from backup to preserve transient data, such as build history.
@@ -387,7 +393,7 @@ Issue the following command to create a Velero backup schedule for selected cont
 Issue the following command to take an on-demand Velero backup for a specific point in time for `team-b` based on the schedule definition:
 
 >[!NOTE]
-> When using this CloudBees CI add-on, you must [create at least one Velero backup schedule](#create-a-velero-backup-schedule) prior to taking an on-demand Velero backup.
+> When using this CloudBees CI add-on, you must [create at least one Velero backup schedule](#velero) prior to taking an on-demand Velero backup.
 
    ```sh
    eval $(terraform output --raw velero_backup_on_demand)

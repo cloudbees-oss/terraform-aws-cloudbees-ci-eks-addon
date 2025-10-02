@@ -2,8 +2,24 @@
 
 fail_fast: false
 repos:
+- repo: https://github.com/thlorenz/doctoc
+  rev: v2.2.0
+  hooks:
+  - id: doctoc
+    args:
+    - -u
+
+- repo: https://github.com/tcort/markdown-link-check
+  rev: v3.13.7
+  hooks:
+    - id: markdown-link-check
+      args:
+        - -v
+        - -c
+        - .github/workflows/markdown.links.config.json
+
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v4.4.0
+  rev: v6.0.0
   hooks:
     - id: trailing-whitespace
       args: ['--markdown-linebreak-ext=md']
@@ -23,7 +39,7 @@ repos:
     - id: check-vcs-permalinks
 
 - repo: https://github.com/antonbabenko/pre-commit-terraform
-  rev: v1.92.0
+  rev: v1.100.0
   hooks:
     - id: terraform_fmt
       name: Format Terraform Configuration

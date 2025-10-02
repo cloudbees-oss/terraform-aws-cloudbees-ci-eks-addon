@@ -12,8 +12,8 @@ on:
 permissions: read-all
 
 env:
-  TERRAFORM_DOCS_VERSION: v0.16.0
-  TFLINT_VERSION: v0.51.1
+  TERRAFORM_DOCS_VERSION: v0.20.0
+  TFLINT_VERSION: v0.59.1
 
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'

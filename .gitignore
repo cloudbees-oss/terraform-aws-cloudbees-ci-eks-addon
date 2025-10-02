@@ -47,6 +47,7 @@ backend*.tf
 
 # Terraform Plan file
 tfplan*.txt
+tfplan
 
 #Ignore auto-generated files and directories
 .DS_Store

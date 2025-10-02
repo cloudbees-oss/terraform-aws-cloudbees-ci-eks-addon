@@ -3,6 +3,7 @@ kube:
     templates:
     - name: "busybox-L"
       label: "busybox-L"
+      serviceAccount: "jenkins-agents"
       yaml: |-
         apiVersion: "v1"
         kind: "Pod"
@@ -25,7 +26,6 @@ kube:
           nodeSelector:
             kubernetes.io/os: linux
             role: "linux-builds"
-            size: "2x"
           tolerations:
           - effect: "NoSchedule"
             key: "dedicated"

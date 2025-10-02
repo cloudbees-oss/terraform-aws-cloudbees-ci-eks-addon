@@ -3,15 +3,15 @@ unclassified:
     durabilityHint: MAX_SURVIVABILITY
   globalLibraries:
     libraries:
-    - defaultVersion: ${sharedLibBranch}
+    - defaultVersion: ${cbci_casc_branch}
       name: "common"
       retriever:
         modernSCM:
           clone: true
-          libraryPath: ${sharedLibPath}
+          libraryPath: ${cbci_casc_path_shared_library}
           scm:
             git:
-              remote: ${sharedLibRepo}
+              remote: ${cbci_casc_repo_url}
               traits:
               - cloneOption:
                   extension:

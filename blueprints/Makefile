@@ -1,16 +1,20 @@
 .DEFAULT_GOAL   	:= help
 SHELL           	:= /usr/bin/env bash
 MAKEFLAGS       	+= --no-print-directory
-CI 					?= false
-BP_AGENT_USER       := bp-agent
 MKFILEDIR 			:= $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 CBCI_REPO		    ?= https://github.com/cloudbees/terraform-aws-cloudbees-ci-eks-addon.git
 CBCI_BRANCH			?= main
-DESTROY_WL_ONLY		?= false
+export DESTROY_WL_ONLY		?= false
+export CI 					?= false
 
 define helpers
-	source helpers.sh && $(1)
+	source $(MKFILEDIR)/helpers.sh && $(1)
 endef
+
+# if ROOT_DIR is not set, set it to current directory
+ifndef ROOT_DIR
+ROOT_DIR := $(MKFILEDIR)
+endif
 
 ##########################
 # Blueprint User
@@ -19,61 +23,35 @@ endef
 .PHONY: tfChecks
 tfChecks: ## Run required terraform checks according to getting-started/README.md . Example: ROOT=02-at-scale make tfChecks
 tfChecks: guard-ROOT
-	@if [ ! -f $(ROOT)/.auto.tfvars ]; then $(call helpers,ERROR "$(ROOT)/.auto.tfvars file does not exist and it is required to store your own values"); fi
-	@if ([ ! -f $(ROOT)/k8s/secrets-values.yml ] && [ $(ROOT) == "02-at-scale" ]); then $(call helpers,ERROR "$(ROOT)/secrets-values.yml file does not exist and it is required to store your secrets"); fi
-	$(eval USER_ID := $(shell aws sts get-caller-identity | grep UserId | cut -d"," -f 1 | xargs ))
-	@if [ "$(USER_ID)" == "" ]; then $(call helpers,ERROR "AWS Authention for CLI is not configured"); fi
-	@$(call helpers,INFO "Terraform Preflight Checks OK for $(USER_ID)")
+	@$(call helpers,$@)
 
 .PHONY: agentCheck
 agentCheck: ## Run agent check providing a warning message in case it is not used. Example:  make agentCheck
-	@if [ "$(shell whoami)" != "$(BP_AGENT_USER)" ]; then $(call helpers,WARN "$(BP_AGENT_USER) user is not detected. Blueprint Docker Agent available via: make bpAgent-dRun"); fi
+	@$(call helpers,$@)
 
 .PHONY: bpAgent-dRun
 bpAgent-dRun: ## Build (if not locally present) and Run the Blueprint Agent using Bash as Entrypoint. It is ideal starting point for all targets. Example: make bpAgent-dRun
-	@$(call helpers,bpAgent-dRun)
+	@$(call helpers,$@)
 
 .PHONY: deploy
 deploy: ## Deploy Terraform Blueprint passed as parameter. Example: ROOT=02-at-scale make deploy
 deploy: tfChecks agentCheck
-	terraform -chdir=$(MKFILEDIR)/$(ROOT) init
-	@terraform -chdir=$(MKFILEDIR)/$(ROOT) plan -no-color > $(MKFILEDIR)/$(ROOT)/tfplan.txt
-ifeq ($(CI),false)
-	@$(call helpers,ask-confirmation "Deploy $(ROOT). Check plan at $(ROOT)/tfplan.txt")
-endif
-	@$(call helpers,tf-apply $(ROOT))
-	@$(call helpers,INFO "CloudBees CI Blueprint $(ROOT) Deploy target finished succesfully.")
+	@$(call helpers,$@)
 
 .PHONY: validate
 validate: ## Validate CloudBees CI Blueprint deployment passed as parameter. Example: ROOT=02-at-scale make validate
 validate: tfChecks agentCheck
-ifeq ($(CI),false)
-ifeq ($(wildcard $(MKFILEDIR)/$(ROOT)/terraform.output),)
-	@$(call helpers,WARN "Blueprint $(ROOT) did not complete the Deployment target thus it is not Ready to be validated.")
-endif
-	@$(call helpers,ask-confirmation "Validate $(ROOT)")
-endif
-	@$(call helpers,probes $(ROOT))
-	@$(call helpers,INFO "CloudBees CI Blueprint $(ROOT) Validation target finished succesfully.")
+	@$(call helpers,$@)
 
 .PHONY: destroy
 destroy: ## Destroy Terraform Blueprint passed as parameter. Example: DESTROY_WL_ONLY=false ROOT=02-at-scale make destroy
 destroy: tfChecks agentCheck guard-DESTROY_WL_ONLY
-ifeq ($(CI),false)
-	@$(call helpers,ask-confirmation "Destroy $(ROOT) with Destroy Workloads Only=$(DESTROY_WL_ONLY)")
-endif
-ifeq ($(DESTROY_WL_ONLY),false)
-	@$(call helpers,tf-destroy $(ROOT))
-else
-	@$(call helpers,tf-destroy-wl $(ROOT))
-endif
-	@$(call helpers,INFO "CloudBees CI Blueprint $(ROOT) Destroy target finished succesfully. Destroy Workloads Only=$(DESTROY_WL_ONLY)")
+	@$(call helpers,$@)
 
 .PHONY: clean
 clean: ## Clean Blueprint passed as parameter. Example: ROOT=02-at-scale make clean
 clean: guard-ROOT agentCheck
-	@$(call helpers,clean $(ROOT))
-	@$(call helpers,INFO "CloudBees CI Blueprint $(ROOT) Clean target finished succesfully.")
+	@$(call helpers,$@)
 
 ##########################
 # Blueprint Admin
@@ -86,7 +64,7 @@ test: clean deploy validate destroy
 
 .PHONY: test-all
 test-all: ## Runs test for all blueprints throughout their Terraform Lifecycle. Example: make test-all
-	@$(call helpers,test-all)
+	@$(call helpers,$@)
 	@$(call helpers,INFO "All Tests target passed succesfully.")
 
 .PHONY: pre-commit
@@ -100,12 +78,6 @@ set-kube-env: agentCheck
 	@$(call helpers,set-kube-env)
 	@$(call helpers,INFO "Setting Kube environment finished succesfully.")
 
-.PHONY: set-cbci-location
-set-cbci-location: ## Update cbci folder location per parameter. Example: CBCI_REPO=https://github.com/cloudbees/terraform-aws-cloudbees-ci-eks-addon.git CBCI_BRANCH=new-feat make set-cbci-location
-set-cbci-location: agentCheck guard-CBCI_REPO guard-CBCI_BRANCH
-	@$(call helpers,set-cbci-location $(CBCI_REPO) $(CBCI_BRANCH))
-	@$(call helpers,INFO "Setting new Casc location to $(CBCI_REPO) $(CBCI_BRANCH) finished succesfully.")
-
 .PHONY: zip-all-casc-bundles
 zip-all-casc-bundles: ## Creates a zip file containing all cbci casc bundles from 02 At scale. Example: make zip-all-casc-bundles
 zip-all-casc-bundles: agentCheck
@@ -118,7 +90,7 @@ zip-all-casc-bundles: agentCheck
 
 .PHONY: help
 help: ## Makefile Help Page
-	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[\/\%a-zA-Z_-]+:.*?##/ { printf "  \033[36m%-21s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST) 2>/dev/null
+	@awk 'BEGIN {FS = ":.*##"; printf "\nUsage:\n  make \033[36m<target>\033[0m\n\nTargets:\n"} /^[\/\%a-zA-Z0-9_-]+:.*?##/ { printf "  \033[36m%-21s\033[0m %s\n", $$1, $$2 }' $(MAKEFILE_LIST) 2>/dev/null
 
 .PHONY: guard-%
 guard-%:

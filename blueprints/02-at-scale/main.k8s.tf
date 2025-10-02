@@ -40,6 +40,11 @@ locals {
 
   node_iam_role_name = module.eks_blueprints_addons.karpenter.node_iam_role_name
 
+  cbci_casc_repo_url            = var.oc_casc_scm_repo_url
+  cbci_casc_branch              = var.oc_casc_scm_branch
+  cbci_casc_path_controller     = var.cbci_casc_path_controller
+  cbci_casc_path_shared_library = var.cbci_casc_path_shared_library
+
 }
 
 resource "random_string" "global_pass_string" {
@@ -70,16 +75,24 @@ module "eks_blueprints_addon_cbci" {
       cbciAppsTolerationKey   = local.mng["cbci_apps"]["taints"].key
       cbciAppsTolerationValue = local.mng["cbci_apps"]["taints"].value
       cbciAgentsNamespace     = local.cbci_agents_ns
+      cbciScmRepoUrl          = local.cbci_casc_repo_url
+      cbciScmBranch           = local.cbci_casc_branch
+      cbciScmBundlePath       = var.oc_casc_scm_bundle_path
+      cbciScmPollingInterval  = var.oc_casc_scm_polling_interval
     })]
   }
 
   create_casc_secrets = true
   casc_secrets_file = templatefile("k8s/secrets-values.yml", {
-    global_password = local.global_password
-    s3bucketName    = module.cbci_s3_bucket.s3_bucket_id
-    awsRegion       = var.aws_region
-    adminMail       = var.trial_license["email"]
-    grafana_url     = local.grafana_url
+    global_password               = local.global_password
+    s3bucketName                  = module.cbci_s3_bucket.s3_bucket_id
+    awsRegion                     = var.aws_region
+    adminMail                     = var.trial_license["email"]
+    grafana_url                   = local.grafana_url
+    cbci_casc_repo_url            = local.cbci_casc_repo_url
+    cbci_casc_branch              = local.cbci_casc_branch
+    cbci_casc_path_controller     = local.cbci_casc_path_controller
+    cbci_casc_path_shared_library = local.cbci_casc_path_shared_library
   })
 
   create_reg_secret = true
@@ -129,7 +142,7 @@ module "eks_blueprints_addons" {
   source = "aws-ia/eks-blueprints-addons/aws"
   #vEKSBpAddonsTFMod#
   version    = "1.20.0"
-  depends_on = [kubernetes_storage_class_v1.efs, kubernetes_storage_class_v1.gp3_a, kubernetes_annotations.gp2]
+  depends_on = [kubernetes_storage_class_v1.efs, kubernetes_storage_class_v1.gp3_a]
 
   cluster_name      = module.eks.cluster_name
   cluster_endpoint  = module.eks.cluster_endpoint
@@ -393,7 +406,7 @@ resource "kubernetes_annotations" "gp2" {
   kind        = "StorageClass"
   # This is true because the resources was already created by the ebs-csi-driver addon
   force      = "true"
-  depends_on = [module.eks]
+  depends_on = [module.eks_blueprints_addons.ebs_csi_driver]
 
   metadata {
     name = "gp2"
@@ -412,7 +425,6 @@ resource "kubernetes_storage_class_v1" "gp3_a" {
       "storageclass.kubernetes.io/is-default-class" = "true"
     }
   }
-  depends_on = [module.eks]
 
   storage_provisioner    = "ebs.csi.aws.com"
   allow_volume_expansion = true

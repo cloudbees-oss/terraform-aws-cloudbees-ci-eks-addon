@@ -9,4 +9,6 @@ nodeSelector:
 kubectl:
   image:
     #Issue #60
+    # https://github.com/bitnami/containers/issues/83267
+    repository: docker.io/bitnamilegacy/kubectl
     tag: 1.26.14-debian-11-r6

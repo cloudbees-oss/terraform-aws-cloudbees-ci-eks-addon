@@ -18,7 +18,8 @@ locals {
 
   vpc_cidr = "10.0.0.0/16"
   #It assumes that AZ as named as "a", "b", "c" consecutively.
-  azs              = slice(data.aws_availability_zones.available.names, 0, 3)
+  azs_count        = 3
+  azs              = slice(data.aws_availability_zones.available.names, 0, local.azs_count)
   route53_zone_id  = data.aws_route53_zone.this.id
   route53_zone_arn = data.aws_route53_zone.this.arn
 
@@ -212,8 +213,8 @@ module "vpc" {
   cidr = local.vpc_cidr
 
   azs             = local.azs
-  public_subnets  = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 4, k)]
-  private_subnets = [for k, v in local.azs : cidrsubnet(local.vpc_cidr, 8, k + 48)]
+  private_subnets = [for i in range(0, local.azs_count) : cidrsubnet(local.vpc_cidr, 4, i)]
+  public_subnets  = [for i in range(0, local.azs_count) : cidrsubnet(local.vpc_cidr, 4, local.azs_count + i)]
 
   enable_nat_gateway = true
   single_nat_gateway = true
@@ -376,7 +377,7 @@ module "cbci_s3_bucket" {
 }
 
 resource "aws_backup_plan" "efs_backup_plan" {
-  name = "efs-backup-plan"
+  name = "efs-backup-plan-${local.name}"
 
   rule {
     rule_name         = "efs-backup-rule"
@@ -392,7 +393,7 @@ resource "aws_backup_plan" "efs_backup_plan" {
 }
 
 resource "aws_backup_vault" "efs_backup_vault" {
-  name = "efs-backup-vault"
+  name = "efs-backup-vault-${local.name}"
 
   kms_key_arn   = aws_kms_key.backup_key.arn
   force_destroy = true
@@ -408,7 +409,7 @@ resource "aws_backup_selection" "efs_backup_selection" {
 }
 
 resource "aws_iam_role" "backup_role" {
-  name = "efs-backup-role"
+  name = "efs-backup-role-${local.name}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

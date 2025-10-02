@@ -18,20 +18,21 @@ unclassified:
       name: "casc-mm-store"
       retriever:
         SCM:
-          defaultVersion: ${cascBranch}
+          defaultVersion: ${cbci_casc_branch}
           scmSource:
             git:
-              remote: ${cascRepo}
+              remote: ${cbci_casc_repo_url}
               traits:
               - "gitBranchDiscovery"
               - headWildcardFilter:
-                  includes: ${cascBranch}
+                  includes: ${cbci_casc_branch}
               - sparseCheckoutPaths:
                   extension:
                     sparseCheckoutPaths:
-                    - path: ${cascPathController}
+                    - path: ${cbci_casc_path_controller}
   cascAutoControllerProvisioning:
     provisionControllerOnCreation: true
+    initialDelay: 60
   audit-trail:
     displayUserName: true
     logBuildCause: true
@@ -60,7 +61,7 @@ unclassified:
     reloadAlwaysOnRestart: false
     skipNewVersions: false
 cloudBeesCasCServer:
-  defaultBundle: "${cascBranch}/mc-none-ha"
+  defaultBundle: "${cbci_casc_branch}/mc-none-ha"
   visibility: true
 beekeeper:
   enabled: true

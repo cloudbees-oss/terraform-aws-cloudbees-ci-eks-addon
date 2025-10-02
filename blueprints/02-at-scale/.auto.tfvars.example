@@ -3,14 +3,14 @@ hosted_zone = "acme.domain.com" # Required. Route 53 Hosted Zone to host CloudBe
 trial_license = { # Required. CloudBees CI Trial license details for evaluation. Replace Default values by your own.
   first_name  = "Foo"
   last_name  = "Bar"
-  email = "foo.bar@acme.com"
+  email = "email@example.com"
   company = "Acme Inc."
 }
 
 dh_reg_secret_auth = { # Required.
   username = "foo"
   password = "d0ckerPass12"
-  email    = "foo.bar@acme.com"
+  email    = "email@example.com"
 }
 
 # tags = {  # Optional. Tags for the resources created. Default set to empty. Shared among all.
@@ -18,6 +18,17 @@ dh_reg_secret_auth = { # Required.
 #   "cb-user" : "demo-user"
 #   "cb-purpose" : "demo-env"
 # }
+
+# Required variables pointing to the monorepo and branch
+# oc_casc_scm_repo_url = "https://github.com/cloudbees-oss/terraform-aws-cloudbees-ci-eks-addon.git"
+# oc_casc_scm_branch    = "develop"
+
+# Optional variables to further tweak configuration
+# oc_casc_scm_bundle_path = "blueprints/02-at-scale/cbci/casc/oc"
+# oc_casc_scm_polling_interval = "PT2M"
+# cbci_casc_path_controller = "blueprints/02-at-scale/cbci/casc/mc"
+# cbci_casc_path_shared_library = "blueprints/02-at-scale/cbci/shared-lib"
+
 
 # suffix = my-demo #Optional
 

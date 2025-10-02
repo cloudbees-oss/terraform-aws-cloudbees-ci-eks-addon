@@ -9,5 +9,4 @@ plugins:
   - id: github
   - id: jsch
   - id: ldap
-  - id: popper2-api
   - id: sshd

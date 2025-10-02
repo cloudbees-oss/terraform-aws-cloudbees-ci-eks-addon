@@ -1,12 +1,50 @@
 # Contribute
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Design principles](#design-principles)
+  - [Changing the default repo and branch for GitOps](#changing-the-default-repo-and-branch-for-gitops)
+- [Release process](#release-process)
+- [Report bugs and feature requests](#report-bugs-and-feature-requests)
+- [Contribute via pull requests](#contribute-via-pull-requests)
+  - [Pre-commits: Linting, formatting and secrets scanning](#pre-commits-linting-formatting-and-secrets-scanning)
+  - [Blueprint Terraform CI pipeline](#blueprint-terraform-ci-pipeline)
+    - [Prerequisites](#prerequisites)
+- [Release](#release)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 This document provides guidelines for contributing to the CloudBees CI add-on for Amazon EKS blueprints.
 
 ## Design principles
 
 - It follows the same approach as the [Terraform AWS EKS Blueprints for Terraform Patterns](https://aws-ia.github.io/terraform-aws-eks-blueprints/).
-- The blueprints use a monorepo configuration to ensure that all the components are versioned together. In a production environment, it would be expected to have a single repository for the blueprints, and another repositories for the CloudBees CI configuration as code (CasC) bundles and shared libraries (see [At scale blueprint](blueprints/02-at-scale)). This approach is managed using [Spare Checkouts](https://github.blog/open-source/git/bring-your-monorepo-down-to-size-with-sparse-checkout/).
-  - The make target `CBCI_REPO=https://github.com/example-org/example-repo.git CBCI_BRANCH=new-feat make set-cbci-location` makes possible to switch between branches when you are making updates to the CasC bundles or shared libraries.
+- The blueprints use a monorepo configuration to ensure that all the components are versioned together.
+- In a production environment, it would be expected to have a single repository for the blueprints, and another repositories for the CloudBees CI configuration as code (CasC) bundles and shared libraries (see [At scale blueprint](blueprints/02-at-scale)).
+- This monorepo approach is managed using [Spare Checkouts](https://github.blog/open-source/git/bring-your-monorepo-down-to-size-with-sparse-checkout/).
+
+### Changing the default repo and branch for GitOps
+
+The `02-at-scale` blueprint relies on a repository and branch for some of its configuration. The following variables found in the [./blueprints/02-at-scale/.auto.tfvars.example](./blueprints/02-at-scale/.auto.tfvars.example) make it possible to switch between branches when you are making updates to the CasC bundles and shared libraries.
+
+```sh
+# Required variables pointing to the monorepo and branch
+# oc_casc_scm_repo_url = "https://github.com/cloudbees-oss/terraform-aws-cloudbees-ci-eks-addon.git"
+# oc_casc_scm_branch    = "develop"
+
+# Optional variables to further tweak configuration
+# oc_casc_scm_bundle_path = "blueprints/02-at-scale/cbci/casc/oc"
+# oc_casc_scm_polling_interval = "PT2M"
+# cbci_casc_path_controller = "blueprints/02-at-scale/cbci/casc/mc"
+# cbci_casc_path_shared_library = "blueprints/02-at-scale/cbci/shared-lib"
+```
+
+So in this case, simply:
+
+- fork this repository
+- create a new branch from develop
+- change the repo and branch in the copied `.auto.tfvars` to match your fork and branch
 
 ## Release process
 
@@ -64,7 +102,7 @@ To submit a pull request:
 7. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
 > [!IMPORTANT]
-> If you make updates to embedded repository (for example, CasC bundles), you must push the changes to the public upstream (repository/branch) before running `terraform apply` locally. The endpoint and/or branch can be updated via `set-casc-location` from the companion [Makefile](blueprints/Makefile).
+> If you make updates to embedded repository (for example, CasC bundles), you must push the changes to the public upstream (repository/branch) before running `terraform apply` locally. The endpoint and/or branch can be updated via the terraform variables mentioned in [Changing the default repo and branch for GitOps](#changing-the-default-repo-and-branch-for-gitops).
 
 ### Pre-commits: Linting, formatting and secrets scanning
 

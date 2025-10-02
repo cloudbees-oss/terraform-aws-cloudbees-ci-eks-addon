@@ -90,7 +90,7 @@ variable "reg_secret_auth" {
     server   = "my-registry.acme:5000"
     username = "foo"
     password = "changeme1234"
-    email    = "foo.bar@acme.com"
+    email    = "email@example.com"
   }
   validation {
     condition     = contains(keys(var.reg_secret_auth), "server") && contains(keys(var.reg_secret_auth), "username") && contains(keys(var.reg_secret_auth), "password") && contains(keys(var.reg_secret_auth), "email")

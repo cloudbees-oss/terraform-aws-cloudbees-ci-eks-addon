@@ -55,7 +55,7 @@ items:
               prometheus: "true"
     properties:
       - configurationAsCode:
-          bundle: "${cascBranch}/mc-none-ha"
+          bundle: "${cbci_casc_branch}/mc-none-ha"
   # Casc, HA
   - kind: managedController
     name: team-c-ha
@@ -104,4 +104,4 @@ items:
               prometheus: "true"
     properties:
       - configurationAsCode:
-          bundle: "${cascBranch}/mc-ha"
+          bundle: "${cbci_casc_branch}/mc-ha"

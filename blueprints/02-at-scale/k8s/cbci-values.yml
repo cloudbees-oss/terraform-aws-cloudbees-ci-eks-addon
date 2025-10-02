@@ -15,10 +15,11 @@ OperationsCenter:
     Enabled: true
     Retriever:
       Enabled: true
-      scmRepo: "https://github.com/cloudbees/terraform-aws-cloudbees-ci-eks-addon.git"
-      scmBranch: upgrade-3.28671.0
-      scmBundlePath: blueprints/02-at-scale/cbci/casc/oc
-      scmPollingInterval: PT20M
+      ocBundleAutomaticVersion: true
+      scmRepo: ${cbciScmRepoUrl}
+      scmBranch: ${cbciScmBranch}
+      scmBundlePath: ${cbciScmBundlePath}
+      scmPollingInterval: ${cbciScmPollingInterval}
 Persistence:
   StorageClass: efs
 Hibernation:

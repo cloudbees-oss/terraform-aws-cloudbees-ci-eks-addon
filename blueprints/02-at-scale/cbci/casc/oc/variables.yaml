@@ -1,8 +1,5 @@
 variables:
   - message: "Welcome to the CloudBees CI blueprint add-on: At scale!"
-  - cascRepo: "https://github.com/cloudbees/terraform-aws-cloudbees-ci-eks-addon.git"
-  - cascBranch: upgrade-3.28671.0
-  - cascPathController: "/blueprints/02-at-scale/cbci/casc/mc/"
   - ldapManagerDN: "cn=admin,dc=acme,dc=org"
   - ldapRootDN: "dc=acme,dc=org"
   - ldapServer: "openldap-stack.auth.svc.cluster.local"
@@ -10,3 +7,8 @@ variables:
   - vault_url: "http://vault.vault.svc.cluster.local:8200"
   - cascSecretsName: "cbci-sec-casc"
   - s3bucketPreffix: "cbci"
+
+# Values for the CasC repository and branch are provided via K8s secrets
+# - cbci_casc_repo_url: "https://github.com/cloudbees/terraform-aws-cloudbees-ci-eks-addon.git"
+# - cbci_casc_branch: upgrade-3.28671.0
+# - cbci_casc_path_controller: "/blueprints/02-at-scale/cbci/casc/mc/"

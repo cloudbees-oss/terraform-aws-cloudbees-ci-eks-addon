@@ -75,7 +75,7 @@ The two main components of CloudBees CI - the operations center and managed cont
 - Amazon EBS volumes are scoped to a particular availability zone to offer high-speed, low-latency access to the Amazon Elastic Compute Cloud (Amazon EC2) instances they are connected to. If an availability zone fails, an Amazon EBS volume becomes inaccessible due to file corruption, or there is a service outage, the data on these volumes becomes inaccessible. The operations center and managed controller pods require this persistent data and have no mechanism to replicate the data, so CloudBees recommends frequent backups for Amazon EBS.
 - Amazon EFS file systems are scoped to an AWS region and can be accessed from any availability zone in the region that the file system was created in. Using Amazon EFS as a storage class for the operations center and managed controllers allows pods to be rescheduled successfully onto healthy nodes in the event of an availability zone outage. Amazon EFS is more expensive than Amazon EBS, but provides greater fault tolerance.
 
-> [!IMPORTANT]  
+> [!IMPORTANT]
 > CloudBees CI High Availability (HA) (active-active) requires Amazon EFS. For more information, refer to [CloudBees CI EKS storage requirements](https://docs.cloudbees.com/docs/cloudbees-ci/latest/eks-install-guide/eks-pre-install-requirements-helm#_storage_requirements).
 
 > [!NOTE]
@@ -110,14 +110,14 @@ The CloudBees CI add-on uses `helms release` for its resources definition, makin
 | create_pi_s3 | Create Pod Identity for s3. It requires the EKS Pod Identity agent running. | `bool` | `false` | no |
 | create_prometheus_target | Creates a service monitor to discover the CloudBees CI Prometheus target dynamically. It is designed to be enabled with the AWS EKS Terraform Addon Kube Prometheus Stack. | `bool` | `false` | no |
 | create_reg_secret | Create a Kubernetes dockerconfigjson secret for container registry authentication (cbci-sec-reg) for CI builds agents. | `bool` | `false` | no |
-| helm_config | CloudBees CI Helm chart configuration. | `any` | <pre>{<br>  "values": [<br>    ""<br>  ]<br>}</pre> | no |
+| helm_config | CloudBees CI Helm chart configuration. | `any` | <pre>{<br/>  "values": [<br/>    ""<br/>  ]<br/>}</pre> | no |
 | pi_ecr_cbci_agents_ns | Kubernetes namespace for CloudBees CI ephemeral agents. | `string` | `"cbci-agents"` | no |
 | pi_eks_cluster_name | EKS cluster name for Pod Identity. | `string` | `"acme-cluster"` | no |
 | pi_s3_bucket_arn | S3 bucket arn for CBCI Backups and/or Workspace Cache | `string` | `"arn:aws:s3:::foo-bucket"` | no |
 | pi_s3_bucket_cbci_prefix | S3 bucket path prefix for CBCI Backups and/or Workspace Cache | `string` | `"bar-prefix"` | no |
-| pi_s3_sa_controllers | List of service account names for controllers that need S3 pod identity. Defaults to ['cjoc'] if not provided. | `list(string)` | <pre>[<br>  "cjoc"<br>]</pre> | no |
+| pi_s3_sa_controllers | List of service account names for controllers that need S3 pod identity. Defaults to ['cjoc'] if not provided. | `list(string)` | <pre>[<br/>  "cjoc"<br/>]</pre> | no |
 | prometheus_target_ns | Prometheus target namespace, designed to be enabled with the AWS EKS Terraform Addon Kube Prometheus Stack. It is required when prometheus_target is enabled. | `string` | `"observability"` | no |
-| reg_secret_auth | Registry server authentication details for cbci-sec-reg secret. It is required when create_reg_secret is enabled. | `map(string)` | <pre>{<br>  "email": "foo.bar@acme.com",<br>  "password": "changeme1234",<br>  "server": "my-registry.acme:5000",<br>  "username": "foo"<br>}</pre> | no |
+| reg_secret_auth | Registry server authentication details for cbci-sec-reg secret. It is required when create_reg_secret is enabled. | `map(string)` | <pre>{<br/>  "email": "email@example.com",<br/>  "password": "changeme1234",<br/>  "server": "my-registry.acme:5000",<br/>  "username": "foo"<br/>}</pre> | no |
 | reg_secret_ns | Agent namespace to allocate the cbci-sec-reg secret. It is required when create_reg_secret is enabled. | `string` | `"cbci"` | no |
 
 ### Outputs

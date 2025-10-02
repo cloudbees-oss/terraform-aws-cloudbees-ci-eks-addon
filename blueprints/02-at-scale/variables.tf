@@ -18,7 +18,7 @@ variable "dh_reg_secret_auth" {
   default = {
     username = "foo"
     password = "changeme1234"
-    email    = "foo.bar@acme.com"
+    email    = "email@example.com"
   }
 }
 
@@ -47,6 +47,50 @@ variable "tags" {
   description = "Tags to apply to resources."
   default     = {}
   type        = map(string)
+}
+
+variable "oc_casc_scm_repo_url" {
+  description = "URL of the Git repository that contains the CloudBees CI CasC bundle configuration for the operations center."
+  type        = string
+  default     = "https://github.com/cloudbees/terraform-aws-cloudbees-ci-eks-addon.git"
+  validation {
+    condition     = length(var.oc_casc_scm_repo_url) > 0
+    error_message = "The repository URL must not be empty."
+  }
+}
+
+variable "oc_casc_scm_branch" {
+  description = "Branch of the Git repository that contains the CloudBees CI CasC bundle configuration for the operations center."
+  type        = string
+  default     = "develop"
+  validation {
+    condition     = length(var.oc_casc_scm_branch) > 0
+    error_message = "The branch name must not be empty."
+  }
+}
+
+variable "oc_casc_scm_bundle_path" {
+  description = "Path within the Git repository that contains the CloudBees CI CasC bundle configuration for the operations center."
+  type        = string
+  default     = "blueprints/02-at-scale/cbci/casc/oc"
+}
+
+variable "oc_casc_scm_polling_interval" {
+  description = "Polling interval for the Git repository that contains the CloudBees CI CasC bundle configuration for the operations center."
+  type        = string
+  default     = "PT20M"
+}
+
+variable "cbci_casc_path_controller" {
+  description = "Path within the Git repository that contains the CloudBees CI controllers."
+  type        = string
+  default     = "blueprints/02-at-scale/cbci/mc"
+}
+
+variable "cbci_casc_path_shared_library" {
+  description = "Path within the Git repository that contains the CloudBees CI shared library."
+  type        = string
+  default     = "blueprints/02-at-scale/cbci/shared-lib"
 }
 
 ############

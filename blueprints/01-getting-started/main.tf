@@ -116,6 +116,8 @@ module "eks" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
+  enable_cluster_creator_admin_permissions = true
+
   # Security groups based on the best practices doc https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html.
   #   So, by default the security groups are restrictive. Users needs to enable rules for specific ports required for App requirement or Add-ons
   #   See the notes below for each rule used in these examples
@@ -198,6 +200,8 @@ resource "kubernetes_annotations" "gp2" {
   annotations = {
     "storageclass.kubernetes.io/is-default-class" = "false"
   }
+
+  depends_on = [module.eks_blueprints_addons]
 }
 
 resource "kubernetes_storage_class_v1" "gp3" {
@@ -220,6 +224,7 @@ resource "kubernetes_storage_class_v1" "gp3" {
     type      = "gp3"
   }
 
+  depends_on = [module.eks_blueprints_addons]
 }
 
 # Kubeconfig

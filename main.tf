@@ -6,8 +6,8 @@ locals {
   cbci_ns                = "cbci"
   cbci_sec_casc_name     = "cbci-sec-casc"
   cbci_sec_registry_name = "cbci-sec-reg"
-  create_secret_casc     = alltrue([var.create_casc_secrets, length(var.casc_secrets_file) > 0])
-  create_secret_reg      = alltrue([var.create_reg_secret, length(var.reg_secret_ns) > 0, length(var.reg_secret_auth) > 0])
+  create_secret_casc     = var.create_casc_secrets
+  create_secret_reg      = var.create_reg_secret
   #This section needs to be included in controllers to make use of the CBCI Casc Secrets
   oc_secrets_mount = [
     <<-EOT
@@ -75,6 +75,13 @@ resource "kubernetes_secret" "cbci_sec_casc" {
   type = "Opaque"
 
   data = yamldecode(var.casc_secrets_file)
+
+  lifecycle {
+    precondition {
+      condition     = try(length(var.casc_secrets_file) > 0, false)
+      error_message = "casc_secrets_file must be non-empty when create_casc_secrets=true."
+    }
+  }
 }
 
 # Kubernetes Secrets to authenticate with DockerHub
@@ -102,6 +109,14 @@ resource "kubernetes_secret" "cbci_sec_reg" {
       }
     })
   }
+
+  lifecycle {
+    precondition {
+      condition     = try(alltrue([length(var.reg_secret_ns) > 0, length(var.reg_secret_auth) > 0]), false)
+      error_message = "reg_secret_ns and reg_secret_auth must be non-empty when create_reg_secret=true."
+    }
+  }
+
 }
 
 ################################################################################
@@ -199,7 +214,16 @@ resource "aws_iam_role_policy" "s3_policy" {
     {
       "Version" : "2012-10-17",
       #https://docs.cloudbees.com/docs/cloudbees-ci/latest/pipelines/cloudbees-cache-step#_s3_configuration
+      #More permissions needed until BEE-62592 is resolved
       "Statement" : [
+        {
+          "Effect" : "Allow",
+          "Action" : [
+            "s3express:CreateSession",
+            "s3:ListBucket"
+          ],
+          "Resource" : var.pi_s3_bucket_arn
+        },
         {
           "Sid" : "cbciS3BucketputGetDelete",
           "Effect" : "Allow",
@@ -295,7 +319,7 @@ resource "helm_release" "cloudbees_ci" {
   chart                      = "cloudbees-core"
   version                    = try(var.helm_config.version, local.cbci_version)
   repository                 = try(var.helm_config.repository, "https://public-charts.artifacts.cloudbees.com/repository/public/")
-  values                     = local.create_secret_casc ? concat(var.helm_config.values, local.oc_secrets_mount, [templatefile("${path.module}/values.yml", local.cbci_template_values)]) : concat(var.helm_config.values, [templatefile("${path.module}/values.yml", local.cbci_template_values)])
+  values                     = local.create_secret_casc ? concat([templatefile("${path.module}/values.yml", local.cbci_template_values)], var.helm_config.values, local.oc_secrets_mount) : concat([templatefile("${path.module}/values.yml", local.cbci_template_values)], var.helm_config.values)
   timeout                    = try(var.helm_config.timeout, 1200)
   repository_key_file        = try(var.helm_config.repository_key_file, null)
   repository_cert_file       = try(var.helm_config.repository_cert_file, null)

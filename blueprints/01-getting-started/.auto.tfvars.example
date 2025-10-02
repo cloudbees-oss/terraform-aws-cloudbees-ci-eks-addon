@@ -3,7 +3,7 @@ hosted_zone = "acme.domain.com" # Required. Route 53 Hosted Zone to host CloudBe
 trial_license = { # Required. CloudBees CI Trial license details for evaluation.
   first_name  = "Foo"
   last_name  = "Bar"
-  email = "foo.bar@acme.com"
+  email = "email@example.com"
   company = "Acme Inc."
 }
 

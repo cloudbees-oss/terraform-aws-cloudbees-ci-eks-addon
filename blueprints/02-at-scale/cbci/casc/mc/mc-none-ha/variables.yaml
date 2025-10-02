@@ -1,4 +1,0 @@
-variables:
-  - sharedLibRepo: "https://github.com/cloudbees/terraform-aws-cloudbees-ci-eks-addon.git"
-  - sharedLibBranch: upgrade-3.28671.0
-  - sharedLibPath: "blueprints/02-at-scale/cbci/shared-lib"

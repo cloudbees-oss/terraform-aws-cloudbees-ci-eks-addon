@@ -6,5 +6,6 @@
 		{
 			"pattern": "https://github.com/jenkinsci/opentelemetry-plugin/blob/main/docs/job-traces.md "
 		}
-	]
+	],
+	"aliveStatusCodes": [429, 200]
 }
